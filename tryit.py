@@ -7,11 +7,20 @@ import numpy as np
 import datetime as dt
 import cv2
 import functions as funcs
+import sys
 # TF
 import tensorflow as tf
 from tensorflow import keras
 
-fname = 'auto_brightness.h5'
+
+try: fname = sys.argv[1]
+except IndexError:
+   fname = 'auto_brightness.h5'
+   if os.path.isfile(fname): print(f'No file specified, using {fname}')
+   else:
+      print('File not specified')
+      exit()
+
 
 model = keras.models.load_model(fname)
 
@@ -29,10 +38,15 @@ SmeanR,SvarR,SstdR,SmeanB,SvarB,SstdB,SmeanG,SvarG,SstdG = funcs.analyze_image(i
 inp = np.array([[ImeanR,IvarR,IstdR, ImeanB,IvarB,IstdB, ImeanG,IvarG,IstdG,
                  SmeanR,SvarR,SstdR, SmeanB,SvarB,SstdB, SmeanG,SvarG,SstdG]])
 
-B = model.predict(inp)
-print('Current_brightness:',int(brightness*max_bright))
-print('suggested:',B*max_bright)
+prediction = model.predict(inp)
+error = abs(brightness - prediction[0,0])
+print('\n===================')
+print(f'= Expected  : {int(brightness*max_bright)}')
+print(f'= Calculated: {int(prediction[0,0]*max_bright)}')
+print(f'= Error: {round(error*100,1)}%')
+print('===================')
 
-com = f"echo {int(B[0,0]*max_bright)} | sudo tee /sys/class/backlight/intel_backlight/brightness"
-print('\nTry it with:')
-print(com)
+# com = f"echo {int(prediction[0,0]*max_bright)} | sudo tee /sys/class/backlight/intel_backlight/brightness"
+# print('\nTry it with:')
+# print(com)
+funcs.set_brightness(int(prediction*100))

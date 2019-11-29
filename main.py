@@ -18,12 +18,11 @@ data = np.loadtxt('datos.dat',delimiter=',')
 np.random.shuffle(data)   # shuffle rows
 
 Nsamples = data.shape[0]
-Ntest = int(Nsamples*0.2)   # 20% of training used for testing
-Ntest = Nsamples
+# Ntest = int(Nsamples*0.2)   # 20% of training used for testing
 X_train = data[:,:-1]
 Y_train = data[:,-1]
-#X_test = data[-Ntest:,:-1]
-#Y_test = data[-Ntest:,-1]
+# X_test = data[-Ntest:,:-1]
+# Y_test = data[-Ntest:,-1]
 
 inp_shape = X_train[0].shape
 
@@ -31,18 +30,19 @@ inp_shape = X_train[0].shape
 try: model = keras.models.load_model(fmodel)
 except OSError:
    model = keras.Sequential([
-      keras.layers.Dense(30, activation='relu',input_shape=inp_shape),
-      keras.layers.Dense(20, activation='relu'),
+      keras.layers.Dense(30, activation='tanh',input_shape=inp_shape),
+      keras.layers.Dense(20, activation='tanh'),
       keras.layers.Dense(1, activation=None)])
 
    model.compile(optimizer='adam',
-                 loss='mean_squared_error',
+                 loss='mse',
                  metrics=['accuracy'])
 
 
-history = model.fit(X_train, Y_train, epochs=300)
-
 model.summary()
+
+history = model.fit(X_train, Y_train, epochs=500, verbose=2)
+
 
 # plot learning curve
 err = history.history['loss']
@@ -68,9 +68,14 @@ SmeanR,SvarR,SstdR,SmeanB,SvarB,SstdB,SmeanG,SvarG,SstdG = funcs.analyze_image(i
 inp = np.array([[ImeanR,IvarR,IstdR, ImeanB,IvarB,IstdB, ImeanG,IvarG,IstdG,
                  SmeanR,SvarR,SstdR, SmeanB,SvarB,SstdB, SmeanG,SvarG,SstdG]])
 
-B = model.predict(inp)
-print('Expected  :',brightness*max_bright)
-print('Calculated:',B*max_bright)
+prediction = model.predict(inp)
+error = abs(brightness - prediction[0,0])
+print('\n===================')
+print('= Expected  :',int(brightness*max_bright))
+print('= Calculated:',int(prediction[0,0]*max_bright))
+print(f'= Error: {round(error*100,1)}%')
+print('===================')
 
 print(f'Saving model to {fmodel}')
 model.save(fmodel)
+print('Done!')

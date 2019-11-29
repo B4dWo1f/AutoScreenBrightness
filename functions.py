@@ -84,3 +84,12 @@ def get_brightness(norm=True):
    brightness = int(brightness)
    if norm: return brightness/max_bright
    else: return brightness
+
+def set_brightness(x):
+   com =   'gdbus call --session --dest org.gnome.SettingsDaemon.Power '
+   com +=  '--object-path /org/gnome/SettingsDaemon/Power '
+   com +=  '--method org.freedesktop.DBus.Properties.Set '
+   com +=  'org.gnome.SettingsDaemon.Power.Screen Brightness '
+   com += f'"<int32 {int(x)}>"'
+   os.system(com)
+   return com
