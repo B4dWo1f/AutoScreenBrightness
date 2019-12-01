@@ -3,6 +3,8 @@
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+here = os.path.dirname(os.path.realpath(__file__))
+
 import numpy as np
 import datetime as dt
 import cv2
@@ -13,9 +15,9 @@ import tensorflow as tf
 from tensorflow import keras
 
 
-try: fname = sys.argv[1]
+try: fname = f'{here}/{sys.argv[1]}'
 except IndexError:
-   fname = 'auto_brightness.h5'
+   fname = f'{here}/auto_brightness.h5'
    if os.path.isfile(fname): print(f'No file specified, using {fname}')
    else:
       print('File not specified')
@@ -42,11 +44,12 @@ prediction = model.predict(inp)
 error = abs(brightness - prediction[0,0])
 print('\n===================')
 print(f'= Expected  : {int(brightness*max_bright)}')
-print(f'= Calculated: {int(prediction[0,0]*max_bright)}')
+print(f'= Calculated: {int((prediction[0,0]*(max_bright-1))+1)}')
 print(f'= Error: {round(error*100,1)}%')
 print('===================')
 
 # com = f"echo {int(prediction[0,0]*max_bright)} | sudo tee /sys/class/backlight/intel_backlight/brightness"
 # print('\nTry it with:')
 # print(com)
-funcs.set_brightness(int(prediction*100))
+com = funcs.set_brightness(int(prediction[0,0]*100))
+print(com)

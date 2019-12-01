@@ -27,8 +27,11 @@ Y_train = data[:,-1]
 inp_shape = X_train[0].shape
 
 # Load model or create a new one
-try: model = keras.models.load_model(fmodel)
+try:
+   model = keras.models.load_model(fmodel)
+   print(f'Loaded model: {fmodel}')
 except OSError:
+   print('New model')
    model = keras.Sequential([
       keras.layers.Dense(30, activation='tanh',input_shape=inp_shape),
       keras.layers.Dense(20, activation='tanh'),

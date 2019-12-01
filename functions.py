@@ -90,6 +90,6 @@ def set_brightness(x):
    com +=  '--object-path /org/gnome/SettingsDaemon/Power '
    com +=  '--method org.freedesktop.DBus.Properties.Set '
    com +=  'org.gnome.SettingsDaemon.Power.Screen Brightness '
-   com += f'"<int32 {int(x)}>"'
+   com += f'"<int32 {int(x)}>"' + '> /dev/null'
    os.system(com)
    return com
