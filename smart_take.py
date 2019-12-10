@@ -40,6 +40,9 @@ while not os.path.isfile(stop_file):
    img = funcs.take_screenshot()
    SmeanR,SvarR,SstdR,SmeanB,SvarB,SstdB,SmeanG,SvarG,SstdG = funcs.analyze_image(img)
 
+   # Night-Light
+   night_light = funcs.get_night_light_status()
+
    # Write data
    with open(data_file,'a') as f:
       # f.write(f'{seconds_since_midnight},')
@@ -49,4 +52,5 @@ while not os.path.isfile(stop_file):
       f.write(f'{SmeanR},{SvarR},{SstdR},')
       f.write(f'{SmeanB},{SvarB},{SstdB},')
       f.write(f'{SmeanG},{SvarG},{SstdG},')
+      f.write(f'{night_light},')
       f.write(f'{brightness}\n')

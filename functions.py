@@ -21,6 +21,12 @@ def analyze_image(img):
    stdG  = round(np.std(img[:,:,2]),4)
    return meanR, varR, stdR, meanB, varB, stdB, meanG, varG, stdG
 
+def get_night_light_status():
+   com = 'gsettings get org.gnome.settings-daemon.plugins.color '
+   com += 'night-light-enabled'
+   stat = os.popen(com).read().strip()
+   if stat == 'true': return 1
+   else: return 0
 
 def take_picture(vid_device=0,pre=30,norm=True):
    """

@@ -5,11 +5,13 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 from tensorflow import keras
+# from tensorflow.keras.callbacks import EarlyStopping
 import numpy as np
 import datetime as dt
 import cv2
 import functions as funcs
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 
 fmodel = 'auto_brightness.h5'
 
@@ -17,12 +19,16 @@ fmodel = 'auto_brightness.h5'
 data = np.loadtxt('datos.dat',delimiter=',')
 np.random.shuffle(data)   # shuffle rows
 
+train_inds = np.array([i for i in range(len(data)) if i%10!=0])
+val_inds = np.array([i for i in range(len(data)) if i%10==0])
+
+
 Nsamples = data.shape[0]
 # Ntest = int(Nsamples*0.2)   # 20% of training used for testing
-X_train = data[:,:-1]
-Y_train = data[:,-1]
-# X_test = data[-Ntest:,:-1]
-# Y_test = data[-Ntest:,-1]
+X_train = data[train_inds,:-1]
+Y_train = data[train_inds,-1]
+X_test = data[val_inds,:-1]
+Y_test = data[val_inds,-1]
 
 inp_shape = X_train[0].shape
 
@@ -44,17 +50,35 @@ except OSError:
 
 model.summary()
 
-history = model.fit(X_train, Y_train, epochs=500, verbose=2)
+# es = EarlyStopping(monitor='val_loss', patience=100, verbose=1)
+
+history = model.fit(X_train, Y_train, validation_data=(X_test, Y_test),
+                                      epochs=500,
+                                      verbose=2)
+                                      # callbacks=[callback])
 
 
 # plot learning curve
 err = history.history['loss']
+val_err = history.history['val_loss']
 acc = history.history['accuracy']
-fig, ax = plt.subplots()
-ax.plot(err,label='loss')
-ax.plot(acc,label='accuracy')
-ax.set_title('Learning curve')
-ax.set_ylim(bottom=0)
+val_acc = history.history['val_accuracy']
+
+fig = plt.figure()  #figsize=(20,10))
+gs = gridspec.GridSpec(2, 1)
+fig.subplots_adjust(wspace=0.,hspace=0.15)
+ax1 = plt.subplot(gs[0])  # Original plot
+ax2 = plt.subplot(gs[1], sharex=ax1)  # dists
+
+ax1.plot(err,label='loss')
+ax1.plot(val_err,label='val_loss')
+ax2.plot(acc,label='accuracy')
+ax2.plot(val_acc,label='val_accuracy')
+ax1.set_title('Learning curve')
+ax1.set_ylim(bottom=0)
+ax2.set_ylim(bottom=0)
+ax1.legend()
+ax2.legend()
 plt.show()
 
 ########################################################################
@@ -66,17 +90,20 @@ ImeanR,IvarR,IstdR,ImeanB,IvarB,IstdB,ImeanG,IvarG,IstdG = funcs.analyze_image(i
 
 img = funcs.take_screenshot()
 SmeanR,SvarR,SstdR,SmeanB,SvarB,SstdB,SmeanG,SvarG,SstdG = funcs.analyze_image(img)
+
+night_light = funcs.get_night_light_status()
 ########################################################################
 
 inp = np.array([[ImeanR,IvarR,IstdR, ImeanB,IvarB,IstdB, ImeanG,IvarG,IstdG,
-                 SmeanR,SvarR,SstdR, SmeanB,SvarB,SstdB, SmeanG,SvarG,SstdG]])
+                 SmeanR,SvarR,SstdR, SmeanB,SvarB,SstdB, SmeanG,SvarG,SstdG,
+                 night_light]])
 
 prediction = model.predict(inp)
-error = abs(brightness - prediction[0,0])
+error = abs(brightness - prediction[0,0])*100/brightness
 print('\n===================')
 print('= Expected  :',int(brightness*max_bright))
 print('= Calculated:',int(prediction[0,0]*max_bright))
-print(f'= Error: {round(error*100,1)}%')
+print(f'= Error: {round(error,1)}%')
 print('===================')
 
 print(f'Saving model to {fmodel}')
