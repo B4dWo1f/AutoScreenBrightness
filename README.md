@@ -5,7 +5,9 @@ content.
 
 It collects data for N days where the user manually controls the brightness, after that period a NN is trained to predict the desired brightness at any given time.
 
+More info in the [wiki](https://github.com/B4dWo1f/AutoScreenBrightness/wiki)
+
 ## requirements
-ubuntu (should be easy to export to other OSs)
-tensorflow 2.0
-opencv 3.2 (sudo apt-get install python3-opencv is fine on ubuntu 18.04)
+- ubuntu (should be easy to export to other OSs)
+- tensorflow 2.0
+- opencv 3.2 (sudo apt-get install python3-opencv is fine on ubuntu 18.04)
