@@ -39,8 +39,8 @@ try:
 except OSError:
    print('New model')
    model = keras.Sequential([
-      keras.layers.Dense(20, activation='tanh',input_shape=inp_shape),
-      keras.layers.Dense(10, activation='tanh'),
+      keras.layers.Dense(10, activation='tanh',input_shape=inp_shape),
+      keras.layers.Dense(5, activation='tanh'),
       keras.layers.Dense(1, activation=None)])
 
    model.compile(optimizer='adam',
