@@ -34,11 +34,11 @@ while not os.path.isfile(stop_file):
 
    # Take picture from webcam
    img = funcs.take_picture()
-   ImeanR,IvarR,IstdR,ImeanB,IvarB,IstdB,ImeanG,IvarG,IstdG = funcs.analyze_image(img)
+   ImeanR,IstdR,ImeanB,IstdB,ImeanG,IstdG = funcs.analyze_image(img)
 
    # Take screenshot
    img = funcs.take_screenshot()
-   SmeanR,SvarR,SstdR,SmeanB,SvarB,SstdB,SmeanG,SvarG,SstdG = funcs.analyze_image(img)
+   SmeanR,SstdR,SmeanB,SstdB,SmeanG,SstdG = funcs.analyze_image(img)
 
    # Night-Light
    night_light = funcs.get_night_light_status()
@@ -46,11 +46,8 @@ while not os.path.isfile(stop_file):
    # Write data
    with open(data_file,'a') as f:
       # f.write(f'{seconds_since_midnight},')
-      f.write(f'{ImeanR},{IvarR},{IstdR},')
-      f.write(f'{ImeanB},{IvarB},{IstdB},')
-      f.write(f'{ImeanG},{IvarG},{IstdG},')
-      f.write(f'{SmeanR},{SvarR},{SstdR},')
-      f.write(f'{SmeanB},{SvarB},{SstdB},')
-      f.write(f'{SmeanG},{SvarG},{SstdG},')
+      f.write(f'{ImeanR},{IstdR},{ImeanB},{IstdB},{ImeanG},{IstdG},')
+      f.write(f'{SmeanR},{SstdR},{SmeanB},{SstdB},{SmeanG},{SstdG},')
       f.write(f'{night_light},')
       f.write(f'{brightness}\n')
+      f.flush()

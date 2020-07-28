@@ -9,17 +9,18 @@ import os
 def analyze_image(img):
    # Red
    meanR = round(np.mean(img[:,:,0]),4)
-   varR  = round(np.var(img[:,:,0]),4)
+   # varR  = round(np.var(img[:,:,0]),4)
    stdR  = round(np.std(img[:,:,0]),4)
    # Blue
    meanB = round(np.mean(img[:,:,1]),4)
-   varB  = round(np.var(img[:,:,1]),4)
+   # varB  = round(np.var(img[:,:,1]),4)
    stdB  = round(np.std(img[:,:,1]),4)
    # Green
    meanG = round(np.mean(img[:,:,2]),4)
-   varG  = round(np.var(img[:,:,2]),4)
+   # varG  = round(np.var(img[:,:,2]),4)
    stdG  = round(np.std(img[:,:,2]),4)
-   return meanR, varR, stdR, meanB, varB, stdB, meanG, varG, stdG
+   return meanR, stdR, meanB, stdB, meanG, stdG
+   # return meanR, varR, stdR, meanB, varB, stdB, meanG, varG, stdG
 
 def get_night_light_status():
    com = 'gsettings get org.gnome.settings-daemon.plugins.color '
@@ -28,7 +29,7 @@ def get_night_light_status():
    if stat == 'true': return 1
    else: return 0
 
-def take_picture(vid_device=0,pre=30,norm=True):
+def take_picture(vid_device=None,pre=30,norm=True):
    """
    Take a picture from webcam using cv2
    vid_device: index of video device as in /dev/video*
@@ -37,6 +38,10 @@ def take_picture(vid_device=0,pre=30,norm=True):
    norm: whether to return the image normalized to 0-1
    """
    # Take picture from webcam
+   if vid_device == None:
+      devs = os.popen('ls /dev/video*').read().strip().splitlines()
+      devs = [int(vid.replace('/dev/video','')) for vid in devs]
+      vid_device = min(devs)
    cam = cv2.VideoCapture(vid_device)
    for i in range(pre):
       ret, img = cam.read()
@@ -55,6 +60,7 @@ def take_screenshot(ftmp='/tmp/screenshot.png',delete=True,norm=True):
    """
    # Take screenshot
    com = f'import -window root {ftmp}'
+   # com = f'gnome-screenshot -f {ftmp}'
    os.system(com)
    img = cv2.imread(ftmp)
    if delete: os.system(f'rm {ftmp}')
