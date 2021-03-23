@@ -11,6 +11,8 @@ import datetime as dt
 import cv2
 import functions as funcs
 import matplotlib.pyplot as plt
+try: plt.style.use('mystyle')
+except: pass
 from matplotlib import gridspec
 
 fmodel = 'auto_brightness.h5'
